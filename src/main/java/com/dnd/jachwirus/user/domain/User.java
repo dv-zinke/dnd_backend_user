@@ -28,12 +28,18 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
 
+    @JsonIgnore
     public String email;
 
     @JsonIgnore
     public String password;
 
     public String nickname;
+
+    public String avatarImageUrl;
+
+    public String avatarColor;
+
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
