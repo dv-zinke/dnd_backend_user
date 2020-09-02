@@ -72,6 +72,8 @@ public class UserController {
         ObjectNode childNode1 = mapper.createObjectNode();
         childNode1.put("email", member.getEmail());
         childNode1.put("nickname", member.getNickname());
+        childNode1.put("avatar_color", member.getAvatarColor());
+        childNode1.put("avatar_image_url", member.getAvatarImageUrl());
         childNode1.put("role", member.getRoles().toString());
         rootNode.set("info", childNode1);
         String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode);
