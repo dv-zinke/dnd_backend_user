@@ -2,6 +2,9 @@ plugins {
     id 'org.springframework.boot' version '2.3.3.RELEASE'
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
     id 'java'
+    id 'org.hidetake.ssh' version '2.9.0'
+    id 'com.google.cloud.tools.jib' version '1.0.0'
+
 }
 
 group = 'com.dnd.jachwirus'
@@ -39,3 +42,85 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+remotes {
+    test {
+        host =  project.properties["dockerHost"]
+        user =  project.properties["dockerUser"]
+        identity = file(project.properties["dockerKeyPath"])
+        knownHosts = allowAnyHosts
+    }
+}
+
+//실행방법
+//gradlew clean bootJar jibBuildTar dockerTestRun --stacktrace
+task dockerTestRun{
+    doLast{
+        ssh.run {
+            session(remotes.test) {
+                def command
+                def imageName = "${project.name}:${project.version}"
+                def containerName = 'user-v1'
+                def host = project.properties["dockerHost"]
+                def buildPath = fileTree(dir: 'build').getDir()
+                def tarName = "jib-image.tar"
+                def inPort = project.properties["dockerInPort"]
+                def outPort = project.properties["dockerOutPort"]
+                def routePort = project.properties["dockerOutPort"]
+                def from = "${buildPath}/${tarName}"
+                def to = project.properties["dockerDir"]
+
+                command = 'docker version'
+                println "\n\$ ${command}"
+                execute(command){r->println r}
+
+                command = "ls ${to}"
+                println "\n\$ ${command}"
+                execute(command){r->println r}
+
+                command = "rm ${to}${tarName}"
+                println "\n\$ ${command}"
+                execute(command, ignoreError:true){r->println r}
+
+                println "\n\$ put from:${from}, into: ${to}"
+                put from: from, into: to
+
+                command = 'ls'
+                println "\n\$ ${command}"
+                execute(command){r->println r}
+
+                command = "docker stop ${containerName}"
+                println "\n\$ ${command}"
+                execute(command, ignoreError:true){r->println r}
+
+                command = "docker rm ${containerName}"
+                println "\n\$ ${command}"
+                execute command, ignoreError:true
+
+                command = "docker rmi ${imageName}"
+                println "\n\$ ${command}"
+                execute command, ignoreError:true
+
+                command = "docker load --input ${to}${tarName}"
+                println "\n\$ ${command}"
+                execute command, ignoreError:true
+
+                command = "docker images"
+                println "\n\$ ${command}"
+                execute command, ignoreError:true
+
+                command = "docker run -d -p ${inPort}:${outPort} --name=${containerName} ${imageName}"
+                println "\n\$ ${command}"
+                execute command, ignoreError:true
+
+                command = "docker ps"
+                println "\n\$ ${command}"
+                execute command, ignoreError:true
+
+                println('\n도커 업로드 완료')
+                println("\nhttp://${host}:${routePort}/ 에 접속하세요.")
+            }
+        }
+    }
+}
+

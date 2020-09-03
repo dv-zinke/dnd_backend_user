@@ -15,10 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -47,12 +44,20 @@ public class UserController {
         if(nicknameExistUser.isPresent()) {
             throw new RestException(HttpStatus.BAD_REQUEST, "존재 하는 닉네임입니다.");
         }
+        // create random object - reuse this as often as possible
+        Random random = new Random();
 
+        // create a big random number - maximum is ffffff (hex) = 16777215 (dez)
+        int nextInt = random.nextInt(0xffffff + 1);
+
+        // format it as hexadecimal string (with hashtag and leading zeros)
+        String colorCode = String.format("#%06x", nextInt);
 
         return userRepository.save(User.builder()
                 .email(user.get("email"))
                 .password(passwordEncoder.encode(user.get("password")))
                 .nickname(user.get("nickname"))
+                .avatarColor(colorCode)
                 .roles(Collections.singletonList("ROLE_USER")) // 최초 가입시 USER 로 설정
                 .build());
     }
@@ -74,6 +79,7 @@ public class UserController {
         childNode1.put("nickname", member.getNickname());
         childNode1.put("avatar_color", member.getAvatarColor());
         childNode1.put("avatar_image_url", member.getAvatarImageUrl());
+        childNode1.put("level", member.getLevel());
         childNode1.put("role", member.getRoles().toString());
         rootNode.set("info", childNode1);
         String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode);

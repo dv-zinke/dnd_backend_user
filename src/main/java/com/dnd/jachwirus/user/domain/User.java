@@ -40,6 +40,8 @@ public class User implements UserDetails {
 
     public String avatarColor;
 
+    public Long level;
+
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
