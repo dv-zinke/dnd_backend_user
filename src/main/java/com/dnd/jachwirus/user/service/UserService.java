@@ -1,6 +1,7 @@
 package com.dnd.jachwirus.user.service;
 
 import com.dnd.jachwirus.user.domain.User;
+import com.dnd.jachwirus.user.domain.data.LikeData;
 import com.dnd.jachwirus.user.exception.RestException;
 import com.dnd.jachwirus.user.repository.UserRepository;
 import com.dnd.jachwirus.user.utils.UuidUtil;
@@ -49,13 +50,13 @@ public class UserService {
     }
 
     public User changeLikesUser (
-        String likes,
+        LikeData likes,
         Long userId
     ) throws RestException {
         Optional<User> foundUser = userRepository.findById(userId);
 
         if(foundUser.isPresent()){
-            foundUser.get().setLikes(likes);
+            foundUser.get().setLikes(likes.getLikes());
             return userRepository.save(foundUser.get());
         }else {
             throw new RestException(HttpStatus.NOT_FOUND, "User is not exist");

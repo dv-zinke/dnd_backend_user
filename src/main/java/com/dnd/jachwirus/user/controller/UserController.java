@@ -2,6 +2,7 @@ package com.dnd.jachwirus.user.controller;
 
 import com.dnd.jachwirus.user.config.JwtTokenProvider;
 import com.dnd.jachwirus.user.domain.User;
+import com.dnd.jachwirus.user.domain.data.LikeData;
 import com.dnd.jachwirus.user.exception.RestException;
 import com.dnd.jachwirus.user.repository.UserRepository;
 import com.dnd.jachwirus.user.service.UserService;
@@ -58,6 +59,7 @@ public class UserController {
                 .email(user.get("email"))
                 .password(passwordEncoder.encode(user.get("password")))
                 .nickname(user.get("nickname"))
+                .level((long) 1)
                 .avatarColor(colorCode)
                 .roles(Collections.singletonList("ROLE_USER")) // 최초 가입시 USER 로 설정
                 .build());
@@ -110,7 +112,7 @@ public class UserController {
     @PostMapping("/likes/{userId}")
     public User changeLikesUser(
            @PathVariable Long userId,
-           @RequestBody String likes
+           @RequestBody LikeData likes
     ) throws RestException {
         return userService.changeLikesUser(likes, userId);
     }
