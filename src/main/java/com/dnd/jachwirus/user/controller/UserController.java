@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
@@ -81,6 +82,8 @@ public class UserController {
         childNode1.put("avatar_image_url", member.getAvatarImageUrl());
         childNode1.put("level", member.getLevel());
         childNode1.put("role", member.getRoles().toString());
+        childNode1.put("id", member.getId());
+        childNode1.put("likes", member.getLikes());
         rootNode.set("info", childNode1);
         String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode);
         return jwtTokenProvider.createToken(member.getUsername(),jsonString);
@@ -94,4 +97,21 @@ public class UserController {
 
     @GetMapping("/all-user")
     public List<User> findAllUser() { return userService.findAllUser();}
+
+    @PostMapping("/avatar/{userId}")
+    public User changeAvatarUser(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("color") String color,
+            @PathVariable Long userId
+    ) throws RestException {
+        return userService.changeAvatarUser(file,color,userId);
+    }
+
+    @PostMapping("/likes/{userId}")
+    public User changeLikesUser(
+           @PathVariable Long userId,
+           @RequestBody String likes
+    ) throws RestException {
+        return userService.changeLikesUser(likes, userId);
+    }
 }

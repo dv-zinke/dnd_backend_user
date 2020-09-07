@@ -42,6 +42,8 @@ public class User implements UserDetails {
 
     public Long level;
 
+    public String likes;
+
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
