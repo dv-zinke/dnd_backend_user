@@ -44,6 +44,10 @@ public class User implements UserDetails {
 
     public String likes;
 
+    public String moveAt;
+
+    public String houseName;
+
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default

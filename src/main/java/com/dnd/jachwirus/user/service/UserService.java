@@ -63,6 +63,22 @@ public class UserService {
         }
     }
 
+    public User changeMoveDataUser(
+            Long userId,
+            String moveAt,
+            String houseName
+    ) throws RestException {
+        Optional<User> foundUser = userRepository.findById(userId);
+
+        if(foundUser.isPresent()){
+            foundUser.get().setMoveAt(moveAt);
+            foundUser.get().setHouseName(houseName);
+            return userRepository.save(foundUser.get());
+        }else {
+            throw new RestException(HttpStatus.NOT_FOUND, "User is not exist");
+        }
+    }
+
     String getAwsS3UrlByFile(MultipartFile file) {
         String PathUrl = null;
         try {

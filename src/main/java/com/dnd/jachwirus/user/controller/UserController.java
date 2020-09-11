@@ -86,6 +86,8 @@ public class UserController {
         childNode1.put("role", member.getRoles().toString());
         childNode1.put("id", member.getId());
         childNode1.put("likes", member.getLikes());
+        childNode1.put("move_at", member.getMoveAt());
+        childNode1.put("house_name", member.getHouseName());
         rootNode.set("info", childNode1);
         String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode);
         return jwtTokenProvider.createToken(member.getUsername(),jsonString);
@@ -107,6 +109,15 @@ public class UserController {
             @PathVariable Long userId
     ) throws RestException {
         return userService.changeAvatarUser(file,color,userId);
+    }
+
+    @PostMapping("move/{userId}")
+    public User changeMoveUser(
+            @PathVariable Long userId,
+            @RequestParam("move_at") String moveAt,
+            @RequestParam("house_name") String houseName
+    ) throws RestException {
+        return userService.changeMoveDataUser(userId, moveAt, houseName);
     }
 
     @PostMapping("/likes/{userId}")
